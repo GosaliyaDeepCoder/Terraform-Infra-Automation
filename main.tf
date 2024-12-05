@@ -45,6 +45,12 @@ data "azurerm_key_vault_secret" "vm_password" {
   key_vault_id = data.azurerm_key_vault.kv.id
 }
 
+data "azurerm_key_vault_secret" "vm_username" {
+  name         = "VM-ADMINUSER"
+  key_vault_id = data.azurerm_key_vault.kv.id
+}
+
+
 module "resource_group" {
   source              = "./modules/resource_grp"
   resource_group_name = var.resource_group_name
@@ -63,7 +69,7 @@ module "compute" {
   subnet_id           = module.network.subnet_ids["subnet1"] # Access the ID for "subnet1"
   vm_name             = "my-vm"
   vm_size             = "Standard_DS1_v2"
-  admin_username      = var.admin_username
+  admin_username      = data.azurerm_key_vault_secret.vm_username.value
   admin_password      = data.azurerm_key_vault_secret.vm_password.value
   location            = module.resource_group.resource_group_location
   resource_group_name = module.resource_group.resource_group_name
